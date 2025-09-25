@@ -4,7 +4,7 @@ const createGroceryTable = async ()=>{
 const query = `
 CREATE TABLE IF NOT EXISTS items (
 id SERIAL PRIMARY KEY,
-ItemList VARCHAR(100) NOT NULL,
+ItemList VARCHAR(100) UNIQUE NOT NULL,
 Quantity INTEGER NOT NULL,
 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

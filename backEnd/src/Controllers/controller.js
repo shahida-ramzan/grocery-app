@@ -1,37 +1,75 @@
-import {addItemService,  getItemService, removeItemService, updateItemQtyService,  } from "../Models/model.js";
+import {
+  addItemService,
+  getAllItemsService,
+  getItemByIdService,
+  removeItemService,
+  updateItemService
+} from "../Models/model.js";
 
- const handleResponse = (res, status, message, data = null)=>{
-res.status(status).json({status, message,data});
- };
-//ADD ITEM...
-export const addItem = async (req, res)=>{
-const newItem = await addItemService(req.body);
-handleResponse(res, 201, "User Created Successfully", newItem);
+const handleResponse = (res, status, message, data = null) => {
+  res.status(status).json({ status, message, data });
 };
 
-export const getItem = async (req, res) =>{
-    const item = await getItemService(req.params.id);
+// Add Item
+export const addItem = async (req, res) => {
+  try {
+    const newItem = await addItemService(req.body);
+    handleResponse(res, 201, "Item Created Successfully", newItem);
+  } catch (error) {
+    handleResponse(res, 500, "Error Creating Item", error.message);
+  }
+};
+
+// Get All Items
+export const getAllItems = async (req, res) => {
+  try {
+    const items = await getAllItemsService();
+    handleResponse(res, 200, "Items Fetched Successfully", items);
+  } catch (error) {
+    handleResponse(res, 500, "Error Fetching Items", error.message);
+  }
+};
+
+// Get Single Item by ID
+export const getItemById = async (req, res) => {
+  try {
+    const item = await getItemByIdService(req.params.id);
     if (item) {
-        handleResponse(res, 200, "Item Fetched Successfully", item);
-    }else{
-        handleResponse(res,404, "Item not found...", null);
-    }
-};
-
-export const removeItem = async (req, res) => {
-    const item = await removeItemService(req.params.id);
-    if(item){
-handleResponse(res, 200, "Item Removed Successfully ", item);
+      handleResponse(res, 200, "Item Fetched Successfully", item);
     } else {
-        handleResponse(res, 404, "Item Not Found", item);
+      handleResponse(res, 404, "Item Not Found");
     }
+  } catch (error) {
+    handleResponse(res, 500, "Error Fetching Item", error.message);
+  }
 };
 
-export const updateItemQty = async (req, res) => {
-    const updatedItem = await updateItemQtyService(req.params.id, req.body);
+// Update
+export const updateItem = async (req, res) => {
+  try {
+    const data = { id: req.params.id, ...req.body };
+    const updatedItem = await updateItemService(data);
     if (updatedItem) {
-        handleResponse(res, 200, "Item Updated Successfully", updatedItem);
+      handleResponse(res, 200, "Item Updated Successfully", updatedItem);
     } else {
-        handleResponse(res, 404, "Item Not Found", null);
+      handleResponse(res, 404, "Item Not Found");
     }
+  } catch (error) {
+    handleResponse(res, 500, "Error Updating Item", error.message);
+  }
+};
+
+
+// Remove Item
+export const removeItem = async (req, res) => {
+  try {
+    const item = await removeItemService(req.params.id);
+    if (item) {
+      handleResponse(res, 200, "Item Removed Successfully", item);
+    } else {
+      handleResponse(res, 404, "Item Not Found");
+    }
+  } catch (error) {
+    handleResponse(res, 500, "Error Removing Item", error.message);
+  }
 };

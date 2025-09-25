@@ -1,41 +1,66 @@
-let basket = [];
-let countId = 1;
+import pool from "../Config/db.js";
 
-export const addItemService = (item) =>{
-   try{
-     const newItem =  {id:countId++,  name: item.name, qty:1};
-basket.push(newItem);
-    return newItem;
-   } catch (error){
-    console.error("Error in FECTHING Item", error);
-    throw error;
-   }
-};
-
-export const getItemService = () => basket;
-
-
-export const updateItemQtyService = (id, qty) => {
+// Add Item
+export const addItemService = async (item) => {
+  const client = await pool.connect();
   try {
-    const item = basket.find(i => i.id == id);
-    if (!item) throw new Error("Item not found");
-    item.qty = qty;
-    return item;
-  } catch (error) {
-    console.error(`Error updating item (id: ${id}):`, error);
-    return null;
+    const { ItemList, Quantity } = item;
+    const result = await client.query(
+      "INSERT INTO items (ItemList, Quantity) VALUES ($1, $2) RETURNING *",
+      [ItemList, Quantity]
+    );
+    return result.rows[0];
+  } finally {
+    client.release();
   }
 };
 
-export const removeItemService = (id) => {
+// Get All Items
+export const getAllItemsService = async () => {
+  const client = await pool.connect();
   try {
-    const index = basket.findIndex(i => i.id == id);
-    if (index === -1) throw new Error("Item not found");
-    const removed = basket[index];
-    basket.splice(index, 1);
-    return removed;
-  } catch (error) {
-    console.error(`Error removing item (id: ${id}):`, error);
-    return null;
+    const result = await client.query("SELECT * FROM items ORDER BY id ASC");
+    return result.rows;
+  } finally {
+    client.release();
+  }
+};
+
+// Get Single Item by ID
+export const getItemByIdService = async (id) => {
+  const client = await pool.connect();
+  try {
+    const result = await client.query("SELECT * FROM items WHERE id = $1", [id]);
+    return result.rows[0];
+  } finally {
+    client.release();
+  }
+};
+
+// Update 
+export const updateItemService = async ({ id, ItemList, Quantity }) => {
+  const client = await pool.connect();
+  try {
+    const result = await client.query(
+      "UPDATE items SET ItemList = $1, Quantity = $2 WHERE id = $3 RETURNING *",
+      [ItemList, Quantity, id]
+    );
+    return result.rows[0];
+  } finally {
+    client.release();
+  }
+};
+
+// Remove Item
+export const removeItemService = async (id) => {
+  const client = await pool.connect();
+  try {
+    const result = await client.query(
+      "DELETE FROM items WHERE id = $1 RETURNING *",
+      [id]
+    );
+    return result.rows[0];
+  } finally {
+    client.release();
   }
 };
