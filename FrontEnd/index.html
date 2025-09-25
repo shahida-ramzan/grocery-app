@@ -34,77 +34,85 @@
 
 
 
-    <script>
-        const input = document.getElementById('item-input');
-        const addBtn = document.getElementById('add-btn');
-        const list = document.getElementById('grocery-list');
-        const totalItems = document.getElementById('total-items');
-        const listCount = document.getElementById('list-count');
+   <script>
+    const input = document.getElementById('item-input');
+    const addBtn = document.getElementById('add-btn');
+    const list = document.getElementById('grocery-list');
+    const totalItems = document.getElementById('total-items');
+    const listCount = document.getElementById('list-count');
 
-        let items = [];
+    // Load from localStorage or start with empty list
+    let items = JSON.parse(localStorage.getItem('groceryItems')) || [];
 
+    // Save to localStorage
+    function saveToLocalStorage() {
+        localStorage.setItem('groceryItems', JSON.stringify(items));
+    }
 
-        function updateList() {
-            list.innerHTML = '';
-            let totalQty = 0;
+    function updateList() {
+        list.innerHTML = '';
+        let totalQty = 0;
 
-            items.forEach((item, index) => {
-                totalQty += item.qty;
+        items.forEach((item, index) => {
+            totalQty += item.qty;
 
-                const li = document.createElement('li');
-                li.className = 'list-group-item d-flex justify-content-between align-items-center rounded-3 my-2 shadow-sm';
+            const li = document.createElement('li');
+            li.className = 'list-group-item d-flex justify-content-between align-items-center rounded-3 my-2 shadow-sm';
 
-                li.innerHTML = `
-          <div class="d-flex align-items-center">
-            <button class="btn btn-outline-secondary btn-sm me-2" onclick="decreaseQuantity(${index})">-</button>
-            <div>
-              <strong>${item.name}</strong><br>
-              <small class="text-muted">Qty: ${item.qty}</small>
-            </div>
-          </div>
-          <div>
-            <button class="btn btn-outline-secondary btn-sm me-2" onclick="increaseQuantity(${index})">+</button>
-            <button class="btn btn-danger btn-sm" onclick="removeItem(${index})">🗑</button>
-          </div>
-        `;
-                list.appendChild(li);
-            });
-
-            listCount.textContent = `${items.length} items in your list`;
-            totalItems.textContent = `Total items to buy: ${totalQty}`;
-        }
-
-
-        addBtn.addEventListener('click', () => {
-            const value = input.value.trim();
-            if (value) {
-                items.push({ name: value, qty: 1 });
-                input.value = '';
-                updateList();
-            }
+            li.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-outline-secondary btn-sm me-2" onclick="decreaseQuantity(${index})">-</button>
+                    <div>
+                        <strong>${item.name}</strong><br>
+                        <small class="text-muted">Qty: ${item.qty}</small>
+                    </div>
+                </div>
+                <div>
+                    <button class="btn btn-outline-secondary btn-sm me-2" onclick="increaseQuantity(${index})">+</button>
+                    <button class="btn btn-danger btn-sm" onclick="removeItem(${index})">🗑</button>
+                </div>
+            `;
+            list.appendChild(li);
         });
 
+        listCount.textContent = `${items.length} items in your list`;
+        totalItems.textContent = `Total items to buy: ${totalQty}`;
 
-        function increaseQuantity(index) {
-            items[index].qty++;
+        saveToLocalStorage(); // Save whenever list updates
+    }
+
+    addBtn.addEventListener('click', () => {
+        const value = input.value.trim();
+        if (value) {
+            items.push({ name: value, qty: 1 });
+            input.value = '';
             updateList();
         }
+    });
 
-        function decreaseQuantity(index) {
-            if (items[index].qty > 1) {
-                items[index].qty--;
-            } else {
-                items.splice(index, 1);
-            }
-            updateList();
-        }
+    function increaseQuantity(index) {
+        items[index].qty++;
+        updateList();
+    }
 
-        function removeItem(index) {
+    function decreaseQuantity(index) {
+        if (items[index].qty > 1) {
+            items[index].qty--;
+        } else {
             items.splice(index, 1);
-            updateList();
         }
+        updateList();
+    }
 
-    </script>
+    function removeItem(index) {
+        items.splice(index, 1);
+        updateList();
+    }
+
+    // Load items when page opens
+    updateList();
+</script>
+
 </body>
 
 </html>
