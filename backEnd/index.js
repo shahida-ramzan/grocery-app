@@ -3,6 +3,7 @@ import basketRoutes from './src/Routes/route.js';
 import dotenv from 'dotenv';
 import pool from './src/Config/db.js';
 import createGroceryTable from './src/Data/createDbData.js';
+import addColumnInTable from './src/Data/addColumn.js';
 
 dotenv.config();
 
@@ -34,6 +35,7 @@ app.use("/basket", basketRoutes);
 
 // Create table on startup
 createGroceryTable();
+addColumnInTable();
 
 app.listen(PORT, () => {
   console.log(` Server running on PORT: ${PORT}`);
